@@ -1,3 +1,17 @@
-exports.printMsg = function() {
-  console.log("This is a message from the demo package");
+/* --- Functions --- */
+import { hasClass } from "./functions/hasClass";
+import { parseQueryString } from "./functions/parseQueryString";
+
+export {
+	hasClass,
+	parseQueryString
 }
+
+/* --- Extensions --- */
+// import { Shopify } from "./extensions/Shopify/_init";
+
+// export {
+// 	Shopify
+// };
+
+/* --- Classes --- */
