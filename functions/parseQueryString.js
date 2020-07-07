@@ -1,15 +1,12 @@
 /*
- 	Parse Query String to Object	
+	parseQueryString
+ 	- parse search parameters to JSON Object
 -------------------------------------------------- */
 export const parseQueryString = ()=>{
 
-	let string;
+	/* --- Return if there is no search string --- */
+	if(!window.location.search || window.location.search == "") return;
 
-	if(location.search && location.search !== ""){
-
-		let query  = location.search.substring(1);
-		string = JSON.parse('{"' + decodeURI(query).replace(/"/g, '\\"').replace(/&/g, '","').replace(/=/g,'":"') + '"}');
-	}
-
-	return string;
+	/* --- Parse the search parameters to a JSON object --- */
+	return JSON.parse('{"' + decodeURI(window.location.search.substring(1)).replace(/"/g, '\\"').replace(/&/g, '","').replace(/=/g,'":"') + '"}');
 };
