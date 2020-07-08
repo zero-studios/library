@@ -20,8 +20,7 @@
     - setup method "put"
     - setup types "blob", "arraybuffer"
 -------------------------------------------------- */
-
-export const ajax = (url, options, callback = null)=>{
+export const ajax = (url, options = {}, callback = null)=>{
 
     this.url = url;
     this.method = (typeof options.method === "undefined") ? "get" : options.method;
