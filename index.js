@@ -21,3 +21,8 @@ export {
 // };
 
 /* --- Classes --- */
+import { LazyLoadWorker } from "./classes/LazyLoadWorker";
+
+export {
+	LazyLoadWorker
+}

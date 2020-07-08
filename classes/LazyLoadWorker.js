@@ -113,7 +113,7 @@ export class LazyLoadWorker {
 
 		/* --- Set our callback interval --- */
 		let interval = setInterval(()=>{
-			
+
 			if(this.count >= this.total){
 				clearInterval(interval);
 				callback(this.count + " of " + images.length + " elements loaded, and " + (images.length - this.total) + " elements duplicated or deferred");
@@ -252,7 +252,7 @@ export class LazyLoadWorker {
 
 		URL.revokeObjectURL(this.array[url]);
 
-
+		remove(this.array, url);
 	}
 
 	/* --- Remove all blobs from memory --- */
