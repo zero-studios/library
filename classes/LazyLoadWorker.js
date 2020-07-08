@@ -116,7 +116,7 @@ export class LazyLoadWorker {
 
 			if(this.count >= this.total){
 				clearInterval(interval);
-				callback(this.count + " of " + images.length + " elements loaded, and " + (images.length - this.total) + " elements duplicated or deferred");
+				callback(this.count + " elements loaded, " + (this.count - this.total) + " duplicate elements, " + (images.length - this.total) + " deferred elements");
 			}
 		}, 10);
 	}
