@@ -15,11 +15,17 @@ export class LazyLoadWorker {
 
 		this.worker = new Worker(worker);
 		this.array = [];
-		this.count = 0;
-		this.total = 0;
+		this.count = 0; // How many images have finished their lazyload
+		this.sent = 0; // How many images have been sent to lazyload
+		this.total = 0; // Count of images requested to lazyload
 
 		/* --- Grab our options --- */
-		this.size = (typeof options.size === "undefined") ? "mobile" : options.size;
+		this.callbackCap = (typeof options.callbackCap === "undefined") ? 1000000 : options.callbackCap; // Max Images to load before firing callback
+		this.dataAttr = (typeof options.dataAttr === "undefined") ? "preload" : options.dataAttr; // What data attribute to use
+		this.forceNoWorker = (typeof options.forceNoWorker === "undefined") ? false : options.forceNoWorker; // Force lazy load to not use the worker
+		this.size = (typeof options.size === "undefined") ? "mobile" : options.size; // Data attribute size, data-preload-{size}
+		this.tagExclusions = (typeof options.tagExclusions === "undefined") ? ["audio", "iframe", "video"] : options.tagExclusions; // Which html tags to exclude from worker load
+		this.workerCap = (typeof options.workerCap === "undefined") ? 1000000 : options.workerCap; // How many images to blob before moving back to traditional load
 
 		/* --- Bind our worker events --- */
 		this.bindEvents();
@@ -37,7 +43,7 @@ export class LazyLoadWorker {
 			this.array[data.url] = url;
 
 			/* --- Make sure we get elements that might have duplicate images --- */
-			let images = document.querySelectorAll(`[data-preload-${this.size}="${data.url}"]:not(.preloaded)`);
+			let images = document.querySelectorAll(`[data-${this.dataAttr}-${this.size}="${data.url}"]:not(.loaded)`);
 
 			for(let i = 0; i < images.length; i++){
 				this.preload(images[i], url);
@@ -48,7 +54,7 @@ export class LazyLoadWorker {
 	/* --- Load a single image --- */
 	loadImage(element){
 
-		let url = element.getAttribute("data-preload-" + this.size);
+		let url = element.getAttribute(`data-${this.dataAttr}-${this.size}`);
 
 		if(this.array[url] !== undefined && this.array[url] !== ""){
 			this.preload(element, this.array[url]);
@@ -59,7 +65,7 @@ export class LazyLoadWorker {
 	loadImages(images = [], size, callback){
 
 		/* --- Check against selector instead of array --- */
-		if(typeof images === "string") images = document.querySelectorAll(images + ":not(.preloaded)");
+		if(typeof images === "string") images = document.querySelectorAll(images + ":not(.loaded)");
 
 		let protocol = window.location.protocol + "//";
 
@@ -70,7 +76,7 @@ export class LazyLoadWorker {
 		/* --- Loop through our images --- */
 		for(let i = 0; i < images.length; i++){
 
-			let url = images[i].getAttribute("data-preload-" + size);
+			let url = images[i].getAttribute(`data-${this.dataAttr}-${this.size}`);
 			let tag = images[i].tagName.toLowerCase();
 
 			/* --- Blank URLs should be passed --- */
@@ -98,7 +104,7 @@ export class LazyLoadWorker {
 			}
 
 			/* --- Don't send the URL to the worker --- */
-			if(tag === "iframe" || tag === "video" || tag === "audio"){
+			if(this.forceNoWorker === true || this.tagExclusions.indexOf(tag) >= 0 || this.sent >= this.workerCap){
 
 				/* --- Traditional non-worker Load --- */
 				this.preload(images[i], url);
@@ -109,12 +115,13 @@ export class LazyLoadWorker {
 			/* --- Send the url over to the worker --- */
 			this.array[url] = "";
 			this.message(url);
+			this.sent++;
 		}
 
 		/* --- Set our callback interval --- */
 		let interval = setInterval(()=>{
 
-			if(this.count >= this.total){
+			if(this.count >= this.total || this.count >= this.callbackCap){
 				clearInterval(interval);
 				callback(this.count + " elements loaded, " + (this.count - this.total) + " duplicate elements, " + (images.length - this.total) + " deferred elements");
 			}
@@ -178,7 +185,7 @@ export class LazyLoadWorker {
 			if(element.readyState > 3){
 
 				/* --- Video has loaded --- */
-				element.className += " preloaded";
+				element.className += " loaded";
 
 				this.count++;
 
@@ -194,7 +201,7 @@ export class LazyLoadWorker {
 		element.onload = ()=>{
 
 			/* --- Add preload class --- */
-			element.className += " preloaded";
+			element.className += " loaded";
 
 			this.count++;
 		};
@@ -210,7 +217,7 @@ export class LazyLoadWorker {
 
 		element.onload = ()=>{
 
-			element.className += " preloaded";
+			element.className += " loaded";
 
 			this.count++;
 		};
@@ -229,7 +236,7 @@ export class LazyLoadWorker {
 
 		image.onload = ()=>{
 			element.style.backgroundImage = "url(" + url + ")";
-			element.className += " preloaded";
+			element.className += " loaded";
 			this.count++;
 		};
 
@@ -242,7 +249,7 @@ export class LazyLoadWorker {
 
 	/* --- Remove selectors and urls --- */
 	clearElement(element){
-		element.removeAttribute("data-preload-" + this.size);
+		element.removeAttribute(`data-${this.dataAttr}-${this.size}`);
 	}
 
 	/* --- Clear single blob --- */
