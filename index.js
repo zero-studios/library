@@ -1,6 +1,6 @@
 /* --- Functions --- */
 import { ajax } from "./functions/ajax";
-import { eq } from "./functions/ajax";
+import { eq } from "./functions/eq";
 import { getViewport } from "./functions/getViewport";
 import { hasClass } from "./functions/hasClass";
 import { parseQueryString } from "./functions/parseQueryString";

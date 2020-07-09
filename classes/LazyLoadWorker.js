@@ -80,7 +80,7 @@ export class LazyLoadWorker {
 			let tag = images[i].tagName.toLowerCase();
 
 			/* --- Blank URLs should be passed --- */
-			if(url === ""){
+			if(!url || url === ""){
 
 				this.clearElement(images[i]);
 				this.total--;
@@ -114,8 +114,8 @@ export class LazyLoadWorker {
 
 			/* --- Send the url over to the worker --- */
 			this.array[url] = "";
-			this.message(url);
 			this.sent++;
+			this.message(url);
 		}
 
 		/* --- Set our callback interval --- */
