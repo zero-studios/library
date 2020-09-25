@@ -1,5 +1,5 @@
 /*  
-    ajax
+    ajax -- CONVERT TO CLASS EVENTUALLY?
 	- ajax Request with Callback
     - makes an ajax call
 
@@ -22,7 +22,6 @@
 -------------------------------------------------- */
 export const ajax = (url, options = {}, callback = null)=>{
 
-    let url = url;
     let method = (typeof options.method === "undefined") ? "get" : options.method;
     let type = (typeof options.type === "undefined") ? "json" : options.type.toLowerCase();
     let headers = (typeof options.headers === "undefined") ? [] : options.headers;
