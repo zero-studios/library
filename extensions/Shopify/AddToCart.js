@@ -1,7 +1,6 @@
 import { ajax, hasClass, parseQueryString, remove, reformatCheckoutUrl } from "../../_global/helpers";
 import { globalStorage } from "../../_global/storage";
 import { Shopify } from "./_init";
-import { $shopify } from "../../_initialize";
 import { BuildMiniCart } from "./MiniCart";
 import * as cookies from "js-cookie";
 import * as serialize from "form-serialize";
@@ -11,11 +10,11 @@ import * as serialize from "form-serialize";
 -------------------------------------------------- */
 export class AddToCart extends Shopify {
 
-	constructor(element){
+	constructor(form){
 
 		super();
 
-		this.form = element;
+		this.form = form;
 	}
 
 	init(){

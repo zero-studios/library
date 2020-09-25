@@ -20,12 +20,13 @@ export class LazyLoadWorker {
 		this.total = 0; // Count of images requested to lazyload
 
 		/* --- Grab our options --- */
-		this.callbackCap = (typeof options.callbackCap === "undefined") ? 1000000 : options.callbackCap; // Max Images to load before firing callback
+		this.callbackCap = (typeof options.callbackCap === "undefined") ? 1000000 : parseInt(options.callbackCap); // Max Images to load before firing callback
 		this.dataAttr = (typeof options.dataAttr === "undefined") ? "preload" : options.dataAttr; // What data attribute to use
 		this.forceNoWorker = (typeof options.forceNoWorker === "undefined") ? false : options.forceNoWorker; // Force lazy load to not use the worker
 		this.size = (typeof options.size === "undefined") ? "mobile" : options.size; // Data attribute size, data-preload-{size}
 		this.tagExclusions = (typeof options.tagExclusions === "undefined") ? ["audio", "iframe", "video"] : options.tagExclusions; // Which html tags to exclude from worker load
-		this.workerCap = (typeof options.workerCap === "undefined") ? 1000000 : options.workerCap; // How many images to blob before moving back to traditional load
+		this.workerCap = (typeof options.workerCap === "undefined") ? 1000000 : parseInt(options.workerCap); // How many images to blob before moving back to traditional load
+		this.delay = (typeof options.delay === "undefined") ? false : parseInt(options.delay); // Time in milleseconds to force load
 
 		/* --- Bind our worker events --- */
 		this.bindEvents();
@@ -119,13 +120,24 @@ export class LazyLoadWorker {
 		}
 
 		/* --- Set our callback interval --- */
+		let timeout = setTimeout(()=>{});
 		let interval = setInterval(()=>{
 
 			if(this.count >= this.total || this.count >= this.callbackCap){
+				clearTimeout(timeout);
 				clearInterval(interval);
 				callback(this.count + " elements loaded, " + (this.count - this.total) + " duplicate elements, " + (images.length - this.total) + " deferred elements");
 			}
+
 		}, 10);
+
+		if(this.delay && this.delay !== false){
+
+			timeout = setTimeout(()=>{
+				clearInterval(interval);
+				callback(this.count + " elements loaded, forced after " + this.delay + " milleseconds");
+			}, delay);
+		}
 	}
 
 	/* --- Detect tag and load accordingly --- */
@@ -252,7 +264,6 @@ export class LazyLoadWorker {
 		element.removeAttribute(`data-${this.dataAttr}-${this.size}`);
 	}
 
-	/* --- Clear single blob --- */
 	clearBlob(url){
 
 		if(!this.array[url]) return;

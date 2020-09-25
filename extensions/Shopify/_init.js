@@ -11,7 +11,9 @@ export class Shopify {
 	}
 
 	init(){
-		BuildMiniCart(this.cart);
+
+		/* --- Build mini-cart if a cart exists --- */
+		if(this.cart && this.cart.length > 0) BuildMiniCart(this.cart);
 	}
 
 	update(checkout, cart){

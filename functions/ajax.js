@@ -22,24 +22,24 @@
 -------------------------------------------------- */
 export const ajax = (url, options = {}, callback = null)=>{
 
-    this.url = url;
-    this.method = (typeof options.method === "undefined") ? "get" : options.method;
-    this.type = (typeof options.type === "undefined") ? "json" : options.type.toLowerCase();
-    this.headers = (typeof options.headers === "undefined") ? [] : options.headers;
-    this.data = (typeof options.data === "undefined") ? null : options.data;
+    let url = url;
+    let method = (typeof options.method === "undefined") ? "get" : options.method;
+    let type = (typeof options.type === "undefined") ? "json" : options.type.toLowerCase();
+    let headers = (typeof options.headers === "undefined") ? [] : options.headers;
+    let data = (typeof options.data === "undefined") ? null : options.data;
 
     /* --- Start our XHR connection --- */
     let xhr = new XMLHttpRequest();
 
-    xhr.open(this.method, this.url, true);
+    xhr.open(method, url, true);
 
     /* --- Add our Headers --- */
-    if(this.type === "json"){
+    if(type === "json"){
         xhr.setRequestHeader("Accept", "application/json");
         xhr.setRequestHeader("Content-Type", "application/json");
     }
 
-    Array.prototype.slice.call(this.headers).forEach((header)=>{
+    Array.prototype.slice.call(headers).forEach((header)=>{
         xhr.setRequestHeader(header[0], header[1]);
     });
 
@@ -51,7 +51,7 @@ export const ajax = (url, options = {}, callback = null)=>{
 
         if(xhr.readyState === 4 && xhr.status === 200){
 
-            if(this.type === "text"){
+            if(type === "text"){
                 callback(xhr.responseText);
             } else {
                 callback(xhr.response);
