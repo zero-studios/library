@@ -13,7 +13,6 @@ export class LazyLoadWorker {
 
 	constructor(worker, options = {}){
 
-		this.worker = new Worker(worker);
 		this.array = [];
 		this.count = 0; // How many images have finished their lazyload
 		this.sent = 0; // How many images have been sent to lazyload
@@ -28,6 +27,9 @@ export class LazyLoadWorker {
 		this.workerCap = (typeof options.workerCap === "undefined") ? 1000000 : parseInt(options.workerCap); // How many images to blob before moving back to traditional load
 		this.delay = (typeof options.delay === "undefined") ? false : parseInt(options.delay); // Time in milleseconds to force load
 
+		/* --- Only assign worker if not forced off --- */
+		this.worker = (this.forceNoWorker === true) ? null : new Worker(worker);
+
 		/* --- Bind our worker events --- */
 		this.bindEvents();
 	}
@@ -35,21 +37,24 @@ export class LazyLoadWorker {
 	bindEvents(){
 
 		/* --- Setup our listener for the worker --- */
-		this.worker.addEventListener("message", (event)=>{
+		if(this.worker){
 
-			const data = event.data;
-			let url = URL.createObjectURL(data.blob);
+			this.worker.addEventListener("message", (event)=>{
 
-			/* --- Let's update our array key --- */
-			this.array[data.url] = url;
+				const data = event.data;
+				let url = URL.createObjectURL(data.blob);
 
-			/* --- Make sure we get elements that might have duplicate images --- */
-			let images = document.querySelectorAll(`[data-${this.dataAttr}-${this.size}="${data.url}"]:not(.loaded)`);
+				/* --- Let's update our array key --- */
+				this.array[data.url] = url;
 
-			for(let i = 0; i < images.length; i++){
-				this.preload(images[i], url);
-			}
-		});
+				/* --- Make sure we get elements that might have duplicate images --- */
+				let images = document.querySelectorAll(`[data-${this.dataAttr}-${this.size}="${data.url}"]:not(.loaded)`);
+
+				for(let i = 0; i < images.length; i++){
+					this.preload(images[i], url);
+				}
+			});
+		}
 	}
 
 	/* --- Load a single image --- */
@@ -61,6 +66,9 @@ export class LazyLoadWorker {
 			this.preload(element, this.array[url]);
 		}
 	}
+
+	/* --- Load images off url --- */
+	loadUrl(){}
 
 	/* --- Load an array of images --- */
 	loadImages(images = [], size, callback){
@@ -136,7 +144,7 @@ export class LazyLoadWorker {
 			timeout = setTimeout(()=>{
 				clearInterval(interval);
 				callback(this.count + " elements loaded, forced after " + this.delay + " milleseconds");
-			}, delay);
+			}, this.delay);
 		}
 	}
 
