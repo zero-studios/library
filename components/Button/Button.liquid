@@ -1,0 +1,32 @@
+{% comment %}
+/*
+ *	 - label: <string>
+ *	 - type: <string>
+ *	 - href: <string>
+ *	 - style: <string>
+ *	 - class: <string>
+ *	 - attribute: <string>
+ *	
+ *	Usage:
+ *	
+ *	{% render "button", label: "string", type: "string", href: "string", style: "string", class: "string", attribute: "string" %}
+ *	
+ *	Example:
+ *	
+ *	{% render "button", label: "Click to open Google", type: "link", href: "https://google.com/", style: "blue no-hover", class: "js-trigger", attribute: "target='blank' rel='external'" %}
+ */
+{% endcomment %}
+
+{%- if type == blank -%}
+	{%- assign type = "button" -%}
+{%- endif -%}
+
+{%- if label == blank -%}
+	<pre class="error">LABEL IS REQUIRED TO OUTPUT THE BUTTON COMPONENT</pre>
+{%- else -%}
+	{%- if type == "link" -%}
+		<a {% if href != blank %}href="{{ href }}"{% endif %} class="button {{ style }} {{ class }}" {{ attribute }}>{{ label }}</a>
+	{%- else -%}
+		<button type="{{ type }}" class="button {{ style }} {{ class }}" {{ attribute }}>{{ label }}</button>
+	{%- endif -%}
+{%- endif -%}

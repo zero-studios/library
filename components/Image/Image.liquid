@@ -1,0 +1,121 @@
+{% comment %}
+/**
+ *	Responsive Image Snippet
+ *
+ *	Attributes:
+ *
+ *	imgSource: where the image is served
+ *		'file' 			- image is uploaded to Shopify's Files section
+ *		'asset'			- image is in theme's Assets folder
+ *		'customfield'	- image is managed through custom fields
+ *
+ *	imgAlt: alt text for the image (same across all viewports)
+ *
+ *	imgBreakpoint: integer to determine when to switch from portrait to desktop
+ *
+ *	imgPortrait: image to be used when viewport < imgBreakpoint
+ *
+ *	imgLandscape: image to be used when viewport >= imgBreakpoint
+ *
+ */
+{% endcomment %}
+
+{% comment %}
+	initialize variables if they are not already set
+	If only 1 image is set, use it for both portrait & landscape
+
+	Required:
+
+	 - image
+
+	Optional: 
+
+	 - imageMobile
+	 - maxSize: 2048
+	 - mobileBreakpoint: 768
+	 - stepSize: 200
+
+	steps:
+	2000
+	1800
+	1600
+	1400
+	1200
+	1000
+	 800
+	 600
+	 400
+	 200
+
+	{% render 'component--responsive-image', image: object, imageMobile: object, maxSize: integer %}
+
+
+{% endcomment %}
+
+{%- liquid
+
+unless image
+	echo "Image object is required for this component"
+endunless
+
+unless imageMobile
+	assign imageMobile = image
+endunless
+
+unless maxSize
+	assign maxSize = 2048
+endunless
+
+unless mobileBreakpoint
+	assign mobileBreakpoint = 768
+endunless
+
+unless stepSize
+	assign stepSize = 200
+endunless
+
+assign maxSteps = maxSize | divided_by: stepSize | floor
+
+capture breakpoints
+	for i in (1..maxSteps)
+		assign thisSize = i | times: stepSize
+		assign thisSizeString = thisSize | append: "x"
+		if thisSize > mobileBreakpoint
+			assign thisImage = image.src | img_url: thisSizeString
+		else
+			continue
+		endif
+		assign breakpointImage = thisImage | append: " " | append: thisSize | append: "w"
+		if i < maxSteps
+			assign breakpointImage = breakpointImage | append: ", "
+		endif
+		echo breakpointImage
+	endfor
+endcapture
+
+capture mobileBreakpoints
+	for i in (1..maxSteps)
+		assign thisSize = i | times: stepSize
+		assign thisSizeString = thisSize | append: "x"
+		if thisSize > mobileBreakpoint
+			continue
+		else
+			assign thisImage = imageMobile.src | img_url: thisSizeString
+		endif
+		assign breakpointImage = thisImage | append: " " | append: thisSize | append: "w"
+		if i < maxSteps
+			assign breakpointImage = ", " | append: breakpointImage
+		endif
+		echo breakpointImage
+	endfor
+endcapture
+
+assign mobileBreakpoints = mobileBreakpoints | remove_first: ", "
+
+-%}
+
+<picture>
+	<source media="(min-width: {{ mobileBreakpoint | plus: 1 }}px)" data-srcset="{{ breakpoints | strip }}" />
+	<source media="(max-width: {{ mobileBreakpoint }}px)" data-srcset="{{ mobileBreakpoints | strip }}" />
+	<img alt="{{ image.alt | strip }}" class="lazy" width="{{ image.width }}" height="{{ image.height }}" data-src="{{ image.src | img_url }}" />
+</picture>

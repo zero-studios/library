@@ -1,0 +1,215 @@
+{% comment %}
+/*
+ *	Fullscreen Media Module
+ *	 - Supports image or mp4
+ */
+{% endcomment %}
+{% assign image_mobile = section.settings.image.src %}
+{% if section.settings.image_mobile != nil %}
+	{% assign image_mobile = section.settings.image_mobile.src %}
+{% endif %}
+<div class="background">
+	{%- if section.settings.video != blank -%}
+		<video class="lazy" data-src="{{- section.settings.video -}}" data-poster="{%- if section.settings.image -%}{{- section.settings.image.src | img_url: "1400x" -}}{%- endif -%}" autoplay="true" loop="true" muted="true" playsinline="true" preload="metadata"></video>
+	{%- else -%}
+		{%- if section.settings.image -%}
+			{% render 'component--responsive-image', image: section.settings.image, imageMobile: section.settings.image_mobile, maxSize: 1920 %}
+		{%- endif -%}
+	{%- endif -%}
+</div>
+{% if section.settings.title != blank or section.settings.description != blank %}
+<div class="text-card {{ section.settings.card_width }} {{ section.settings.card_alignment }} {{ section.settings.card_background }}">
+	<{{- section.settings.title_tag }} style="color:{{ section.settings.font_color }};">{{- section.settings.title -}}</{{- section.settings.title_tag -}}>
+	<p style="color:{{ section.settings.font_color }};">{{- section.settings.description -}}</p>
+	{%- if section.settings.button_link -%}
+		<a class="btn {{ section.settings.button_style }}" href="{{ section.settings.button_link }}">{{- section.settings.button_text -}}</a>
+	{%- endif -%}
+</div>
+{% endif %}
+
+{% schema %}
+	{
+		"name": "Fullscreen Hero",
+		"class": "fullscreen-hero",
+		"tag": "section",
+		"settings": [
+			{
+				"type": "text",
+				"id": "video",
+				"label": "MP4 CDN URL"
+			},
+			{
+				"type": "image_picker",
+				"id": "image",
+				"label": "Image"
+			},
+			{
+				"type": "image_picker",
+				"id": "image_mobile",
+				"label": "Image Mobile"
+			},
+			{
+				"type": "text",
+				"id": "title",
+				"label": "Title"
+			},
+			{
+				"type": "select",
+				"id": "title_tag",
+				"label": "Title HTML Tag",
+				"options": [
+					{
+						"value": "h1",
+						"label": "Heading 1"
+					},
+					{
+						"value": "h2",
+						"label": "Heading 2"
+					},
+					{
+						"value": "h3",
+						"label": "Heading 3"
+					}
+				],
+				"default": "h2"
+			},
+			{
+				"type": "textarea",
+				"id": "description",
+				"label": "Description"
+			},
+			{
+				"type": "color",
+				"id": "font_color",
+				"label": "Text Color",
+				"default": "#000000"
+			},
+			{
+				"type": "select",
+				"id": "card_width",
+				"label": "Text Card Width",
+				"options": [
+					{
+						"value": "wide",
+						"label": "Wide"
+					},
+					{
+						"value": "normal",
+						"label": "Normal"
+					}
+				],
+				"default": "wide"
+			},
+			{
+				"type": "select",
+				"id": "card_alignment",
+				"label": "Text Card Alignment",
+				"options": [
+					{
+						"value": "left",
+						"label": "Left"
+					},
+					{
+						"value": "right",
+						"label": "Right"
+					},
+					{
+						"value": "center",
+						"label": "Center"
+					}
+				],
+				"default": "center"
+			},
+			{
+				"type": "select",
+				"id": "card_background",
+				"label": "Text Card Background",
+				"options": [
+					{
+						"value": "white",
+						"label": "White"
+					},
+					{
+						"value": "blue",
+						"label": "Blue"
+					},
+					{
+						"value": "transparent",
+						"label": "Transparent"
+					}
+				],
+				"default": "transparent"
+			},
+			{
+				"type": "text",
+				"id": "button_text",
+				"label": "Button Text"
+			},
+			{
+				"type": "url",
+				"id": "button_link",
+				"label": "Button Link"
+			},
+			{
+				"type": "select",
+				"id": "button_style",
+				"label": "Button Color Theme",
+				"options": [
+					{
+						"value": "btn-primary",
+						"label": "Solid Blue"
+					},
+					{
+						"value": "btn-primary--white",
+						"label": "Solid White"
+					},
+					{
+						"value": "btn-secondary",
+						"label": "Outline Blue"
+					},
+					{
+						"value": "btn-secondary--black",
+						"label": "Outline Black"
+					}
+				],
+				"default": "btn-primary"
+			}
+		],
+		"presets": [
+			{
+				"name": "Fullscreen Hero"
+			}
+		],
+		"templates": [
+			"index"
+		]
+	}
+{% endschema %}
+
+{% stylesheet %}
+.fullscreen-hero {
+	position: relative;
+}
+
+.background {
+	height: 0;
+	padding-bottom: 66.6667%;
+	position: relative;
+	width: 100%;
+}
+
+.background img,
+.background picture,
+.background video {
+	display: block;
+	left: 0;
+	height: 100%;
+	object-fit: cover;
+	position: absolute;
+	top: 0;
+	width: 100%;
+}
+{% endstylesheet %}
+
+{% javascript %}
+{% endjavascript %}
